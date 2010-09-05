@@ -1,0 +1,27 @@
+#!/usr/bin/env perl
+
+use Dancer;
+use Dancer::Plugin::DBIC;
+
+get '/profile/:id' => sub {
+    my $users_rs = foo->resultset('Users')->search({
+        user_id => params->{id}
+    });
+    
+    template 'user_profile', { user => $user_rs->next };
+};
+
+dance;
+
+# Dancer Configuration File
+
+plugins:
+  DBIC:
+    foo:
+      pckg: "Foo-Bar"
+      dsn:  "dbi:mysql:db_foo"
+      user: "root"
+      pass: "****"
+      options:
+        RaiseError: 1
+        PrintError: 1

@@ -18,10 +18,10 @@ dance;
 plugins:
   DBIC:
     foo:
-      pckg: "Foo-Bar"
       dsn:  "dbi:mysql:db_foo"
       user: "root"
       pass: "****"
+      pckg: "Foo::Bar"
       options:
         RaiseError: 1
         PrintError: 1

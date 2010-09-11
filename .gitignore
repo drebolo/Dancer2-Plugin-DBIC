@@ -2,4 +2,5 @@ eg
 eg/*
 Dancer-Plugin-DBIC-*
 Dancer-Plugin-DBIC-*/*
+log/*
 dbic.kpf

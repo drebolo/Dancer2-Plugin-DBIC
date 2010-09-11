@@ -9,6 +9,7 @@ use DBIx::Class;
 use DBIx::Class::Schema::Loader qw/ make_schema_at /;
 
 my  $cfg = plugin_setting;
+my  $DBH = {};
 
 =head1 SYNOPSIS
 
@@ -16,13 +17,19 @@ my  $cfg = plugin_setting;
     plugins:
       DBIC:
         foo:
-          pckg: "Foo-Bar"
+          pckg: "Foo::Bar"
           dsn:  "dbi:mysql:db_foo"
           user: "root"
           pass: "****"
           options:
             RaiseError: 1
             PrintError: 1
+    
+    # Note! If your app already has a DBIC schema you may turn off auto generation like so..
+    plugins:
+      DBIC:
+        foo:
+          skip_automake: 1
     
     # Dancer Code File
     use Dancer;
@@ -96,12 +103,21 @@ foreach my $keyword (keys %{ $cfg }) {
             $cfg->{$keyword}->{pckg},
             {},
             [ @dsn ],
-        );
+        ) unless $cfg->{skip_automake};
         
         push @dsn, $cfg->{$keyword}->{options}  if $cfg->{$keyword}->{options};
         
-        my     $package = $cfg->{$keyword}->{pckg};
-        return $package->connect(@dsn);
+        my  $variable = lc $cfg->{$keyword}->{pckg};
+            $variable =~ s/::/\-/g;
+            
+        my  $package  = $cfg->{$keyword}->{pckg};
+        
+        unless ( $Dancer::Plugin::DBIC::DBH->{$keyword}->{$variable} ) {
+            $Dancer::Plugin::DBIC::DBH->{$keyword}->{$variable} =
+            $package->connect(@dsn);
+        }
+        
+        return $Dancer::Plugin::DBIC::DBH->{$keyword}->{$variable};
     };
 }
 

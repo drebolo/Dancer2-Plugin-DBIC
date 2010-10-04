@@ -8,14 +8,8 @@ use Dancer::Plugin;
 use DBIx::Class;
 use DBIx::Class::Schema::Loader qw/ make_schema_at /;
 
-our $VERSION = '0.13';
-
 my  $cfg = plugin_setting;
 my  $DBH = {};
-
-=head1 NAME
-
-Dancer::Plugin::DBIC - DBIx::Class interface for Dancer applications
 
 =head1 SYNOPSIS
 

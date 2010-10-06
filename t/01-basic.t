@@ -24,8 +24,6 @@ BEGIN {
             foo => {
                 #generate => 1,
                 auto_load => 1,
-                #pckg => "Foo::Bar",
-                schema_class => "Foo::Bar",
                 dsn =>  "dbi:SQLite:dbname=$dbfile",
             }
         }

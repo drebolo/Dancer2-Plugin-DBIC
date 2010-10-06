@@ -17,22 +17,12 @@ my  $schemas = {};
     plugins:
       DBIC:
         foo:
-          schema_class: "Foo::Bar"
           dsn:  "dbi:mysql:db_foo"
           user: "root"
           pass: "****"
           options:
             RaiseError: 1
             PrintError: 1
-    
-    # Important Note! We have reversed our policy so that D::P::DBIC will not
-    # automatically load your DBIx-Class schemas via
-    # DBIx::Class::Schema::Loader. To enable auto loading, use the auto_load
-    # parameter:
-    plugins:
-      DBIC:
-        foo:
-          auto_load: 1
     
     # Dancer Code File
     use Dancer;
@@ -43,7 +33,6 @@ my  $schemas = {};
     plugings:
       DBIC:
         foo:
-          schema_class: Foo::Bar
           connect_info:
             - dbi:mysql:db_foo
             - root
@@ -83,7 +72,7 @@ should be specified as stated above, for example:
     plugins:
       DBIC:
         foo:
-          schema_class: "Foo"
+          schema_class: "Foo::Bar"
           dsn:  "dbi:mysql:db_foo"
           user: "root"
           pass: "****"
@@ -91,32 +80,31 @@ should be specified as stated above, for example:
             RaiseError: 1
             PrintError: 1
         bar:
-          schema_class: "Bar"
           dsn:  "dbi:SQLite:dbname=./foo.db"
 
-Please use dsn keywords that will not clash with existing L<Dancer> and
-Dancer::Plugin::*** reserved keywords. 
+Make sure that the options immediately under DBIC
+(foo and bar in the above example)
+do not clash with existing L<Dancer> and Dancer::Plugin::*** reserved keywords. 
 
-Each database configuration *must* have a dsn and schema_class option.
-The dsn option
-should be the L<DBI> driver connection string less the optional user/pass and
-arguments options.
-The schema_class option should be a proper Perl package name that
-Dancer::Plugin::DBIC will use as a DBIx::Class schema class.
-Optionally a database
-configuation may have user, pass and options paramters which are appended to the
-dsn in list form, i.e. dbi:SQLite:dbname=./foo.db, $user, $pass, $options.
+Each database configuration *must* have a dsn option.
+The dsn option should be the L<DBI> driver connection string.
+
+If a schema_class option is not provided, then L<DBIx::Class::Schema::Loader>
+will be used to auto load the schema.
+
+The schema_class option, if provided, should be a proper Perl package name that
+Dancer::Plugin::DBIC will use as a DBIx::Class::Schema class.
+Optionally, a database configuation may have user, pass and options paramters
+which are appended to the dsn in list form,
+i.e. dbi:SQLite:dbname=./foo.db, $user, $pass, $options.
 
 =cut
 
 foreach my $keyword (keys %{ $cfg }) {
     register $keyword => sub {
-        my @dsn = ();
+        return $schemas->{$keyword} if $schemas->{$keyword};
         
-        my $schema_class = $cfg->{$keyword}{schema_class}
-            || $cfg->{$keyword}{pckg}; # pckg is deprecated
-        $schema_class =~ s/\-/::/g;
-
+        my @dsn;
         if ( $cfg->{$keyword}->{connect_info} ) {
             push @dsn, @{ $cfg->{$keyword}->{connect_info} };
         }
@@ -128,19 +116,19 @@ foreach my $keyword (keys %{ $cfg }) {
               if $cfg->{$keyword}->{options};
         }
 
-        if ( $cfg->{$keyword}{auto_load}
-            || $cfg->{$keyword}{generate}) # generate is deprecated
-        {
-            make_schema_at( $schema_class, {}, [@dsn], );
-        } else {
+        my $schema_class = $cfg->{$keyword}{schema_class}
+            || $cfg->{$keyword}{pckg}; # pckg should be deprecated
+
+        if ($schema_class) {
+            $schema_class =~ s/-/::/g;
             eval "use $schema_class";
             if ( my $err = $@ ) {
                 die "error while loading $schema_class : $err";
             }
+            $schemas->{$keyword} = $schema_class->connect(@dsn)
+        } else {
+            $schemas->{$keyword} = DBIx::Class::Schema::Loader->connect(@dsn);
         }
-
-        $schemas->{$keyword} = $schema_class->connect(@dsn)
-            unless $schemas->{$keyword};
         
         return $schemas->{$keyword};
     };

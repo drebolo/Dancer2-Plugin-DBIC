@@ -22,8 +22,6 @@ BEGIN {
     set plugins => {
         DBIC => {
             foo => {
-                #generate => 1,
-                auto_load => 1,
                 dsn =>  "dbi:SQLite:dbname=$dbfile",
             }
         }

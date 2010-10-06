@@ -32,11 +32,8 @@ my  $schemas = {};
     # the database connection info from the configuration file.
     
     get '/profile/:id' => sub {
-        my $users_rs = foo->resultset('Users')->search({
-            user_id => params->{id}
-        });
-        
-        template 'user_profile', { user_data => $user_rs->next };
+        my $user = foo->resultset('Users')->find(params->{id});
+        template user_profile => { user => $user };
     };
 
     dance;

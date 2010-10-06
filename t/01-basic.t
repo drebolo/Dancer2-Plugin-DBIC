@@ -23,7 +23,8 @@ BEGIN {
         DBIC => {
             foo => {
                 generate => 1,
-                pckg => "Foo::Bar",
+                #pckg => "Foo::Bar",
+                schema_class => "Foo::Bar",
                 dsn =>  "dbi:SQLite:dbname=$dbfile",
             }
         }

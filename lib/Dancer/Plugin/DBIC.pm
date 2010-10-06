@@ -9,7 +9,7 @@ use DBIx::Class;
 use DBIx::Class::Schema::Loader qw/ make_schema_at /;
 
 my  $cfg = plugin_setting;
-my  $DBH = {};
+my  $schemas = {};
 
 =head1 SYNOPSIS
 
@@ -17,7 +17,7 @@ my  $DBH = {};
     plugins:
       DBIC:
         foo:
-          pckg: "Foo::Bar"
+          schema_class: "Foo::Bar"
           dsn:  "dbi:mysql:db_foo"
           user: "root"
           pass: "****"
@@ -42,7 +42,7 @@ my  $DBH = {};
     plugings:
       DBIC:
         foo:
-          pckg: Foo::Bar
+          schema_class: Foo::Bar
           connect_info:
             - dbi:mysql:db_foo
             - root
@@ -82,7 +82,7 @@ should be specified as stated above, for example:
     plugins:
       DBIC:
         foo:
-          pckg: "Foo"
+          schema_class: "Foo"
           dsn:  "dbi:mysql:db_foo"
           user: "root"
           pass: "****"
@@ -90,16 +90,19 @@ should be specified as stated above, for example:
             RaiseError: 1
             PrintError: 1
         bar:
-          pckg: "Bar"
+          schema_class: "Bar"
           dsn:  "dbi:SQLite:dbname=./foo.db"
 
 Please use dsn keywords that will not clash with existing L<Dancer> and
 Dancer::Plugin::*** reserved keywords. 
 
-Each database configuration *must* have a dsn and pckg option. The dsn option
+Each database configuration *must* have a dsn and schema_class option.
+The dsn option
 should be the L<DBI> driver connection string less the optional user/pass and
-arguments options. The pckg option should be a proper Perl package name that
-Dancer::Plugin::DBIC will use as a DBIx::Class schema class. Optionally a database
+arguments options.
+The schema_class option should be a proper Perl package name that
+Dancer::Plugin::DBIC will use as a DBIx::Class schema class.
+Optionally a database
 configuation may have user, pass and options paramters which are appended to the
 dsn in list form, i.e. dbi:SQLite:dbname=./foo.db, $user, $pass, $options.
 
@@ -109,7 +112,9 @@ foreach my $keyword (keys %{ $cfg }) {
     register $keyword => sub {
         my @dsn = ();
         
-        $cfg->{$keyword}->{pckg} =~ s/\-/::/g;
+        my $schema_class = $cfg->{$keyword}{schema_class}
+            || $cfg->{$keyword}{pckg}; # pckg is be deprecated
+        $schema_class =~ s/\-/::/g;
 
         if ( $cfg->{$keyword}->{connect_info} ) {
             push @dsn, @{ $cfg->{$keyword}->{connect_info} };
@@ -122,36 +127,20 @@ foreach my $keyword (keys %{ $cfg }) {
               if $cfg->{$keyword}->{options};
         }
 
-        # make_schema_at(
-        #     $cfg->{$keyword}->{pckg},
-        #     {},
-        #     [ @dsn ],
-        # ) if $cfg->{$keyword}->{generate} == 1;
-
-        if ( exists $cfg->{$keyword}->{generate} && $cfg->{$keyword}->{generate} == 1 ) {
-            make_schema_at( $cfg->{$keyword}->{pckg}, {}, [@dsn], );
+        if ( $cfg->{$keyword}{generate} ) {
+            make_schema_at( $schema_class, {}, [@dsn], );
         }
         else {
-            my $package = $cfg->{$keyword}->{pckg};
-            eval "use $package";
+            eval "use $schema_class";
             if ( my $err = $@ ) {
-                die "error while loading "
-                  . $cfg->{$keyword}->{pckg} . " : "
-                  . $err;
+                die "error while loading $schema_class : $err";
             }
         }
 
-        my  $variable = lc $cfg->{$keyword}->{pckg};
-            $variable =~ s/::/\-/g;
-            
-        my  $package  = $cfg->{$keyword}->{pckg};
+        $schemas->{$keyword} = $schema_class->connect(@dsn)
+            unless $schemas->{$keyword};
         
-        unless ( $Dancer::Plugin::DBIC::DBH->{$keyword}->{$variable} ) {
-            $Dancer::Plugin::DBIC::DBH->{$keyword}->{$variable} =
-            $package->connect(@dsn);
-        }
-        
-        return $Dancer::Plugin::DBIC::DBH->{$keyword}->{$variable};
+        return $schemas->{$keyword};
     };
 }
 

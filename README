@@ -21,7 +21,6 @@ plugins:
       dsn:  "dbi:mysql:db_foo"
       user: "root"
       pass: "****"
-      pckg: "Foo::Bar"
       options:
         RaiseError: 1
         PrintError: 1

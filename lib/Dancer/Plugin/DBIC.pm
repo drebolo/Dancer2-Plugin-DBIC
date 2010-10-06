@@ -6,7 +6,7 @@ use strict;
 use warnings;
 use Dancer::Plugin;
 use DBIx::Class;
-use DBIx::Class::Schema::Loader qw/ make_schema_at /;
+use DBIx::Class::Schema::Loader;
 
 my  $cfg = plugin_setting;
 my  $schemas = {};
@@ -28,22 +28,8 @@ my  $schemas = {};
     use Dancer;
     use Dancer::Plugin::DBIC;
 
-    # Note! You can also declare your connection information with the
-    # following syntax:
-    plugings:
-      DBIC:
-        foo:
-          connect_info:
-            - dbi:mysql:db_foo
-            - root
-            - ***
-            -
-              RaiseError: 1
-              PrintError: 1
-
-    # Calling the `foo` dsn keyword will return a L<DBIx::Class> instance using
-    # the database connection specifications associated with the dsn keyword
-    # within the Dancer configuration file.
+    # Calling foo will return a L<DBIx::Class::Schema> instance using
+    # the database connection info from the configuration file.
     
     get '/profile/:id' => sub {
         my $users_rs = foo->resultset('Users')->search({
@@ -97,6 +83,19 @@ Dancer::Plugin::DBIC will use as a DBIx::Class::Schema class.
 Optionally, a database configuation may have user, pass and options paramters
 which are appended to the dsn in list form,
 i.e. dbi:SQLite:dbname=./foo.db, $user, $pass, $options.
+
+    # Note! You can also declare your connection information with the
+    # following syntax:
+    plugings:
+      DBIC:
+        foo:
+          connect_info:
+            - dbi:mysql:db_foo
+            - root
+            - ***
+            -
+              RaiseError: 1
+              PrintError: 1
 
 =cut
 

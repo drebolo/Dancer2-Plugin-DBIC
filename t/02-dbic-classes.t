@@ -6,9 +6,8 @@ use Dancer;
 use Dancer::Test;
 use DBI;
 use DBIx::Class;
-use DBIx::Class::Schema::Loader;
-DBIx::Class::Schema::Loader->naming('v6');
 use FindBin '$RealBin';
+use lib "$RealBin/lib";
 
 my $dbfile;
 
@@ -19,11 +18,12 @@ BEGIN {
         plan skip_all => 'DBD::SQLite required to run these tests';
     }
 
-    $dbfile = "$RealBin/test.db";
+    $dbfile = "$RealBin/test2.db";
 
     set plugins => {
         DBIC => {
             foo => {
+                schema_class => 'Foo',
                 dsn =>  "dbi:SQLite:dbname=$dbfile",
             }
         }
@@ -36,7 +36,7 @@ BEGIN {
         create table user (name varchar(100) primary key, age int)
     }), 'Created sqlite test db.';
 
-    my @users = ( ['bob', 30] );
+    my @users = ( ['bob', 40] );
     for my $user (@users) {
         $dbh->do(q{ insert into user values(?,?) }, {}, @$user[0,1]);
     }
@@ -49,7 +49,7 @@ use Dancer::Plugin::DBIC;
 get '/foo' => sub {
     my $user = foo->resultset('User')->find('bob');
     ok $user, 'Found bob.';
-    is $user->age => '30', 'Bob is getting old.';
+    is $user->age => '40', 'Bob is even older.';
 };
 
 response_exists [ get => '/foo' ], 'Route /foo ran';

@@ -23,6 +23,8 @@ my  $schemas = {};
           options:
             RaiseError: 1
             PrintError: 1
+        bar:
+          dsn:  "dbi:SQLite:dbname=./foo.db"
     
     # Dancer Code File
     use Dancer;
@@ -43,9 +45,9 @@ below.
 
 =head1 DESCRIPTION
 
-Provides an easy way to obtain a DBIx::Class instance by simply calling a dsn keyword
-you define within your Dancer configuration file, this allows your L<Dancer>
-application to connect to one or many databases with ease and consistency.
+Provides an easy way to obtain DBIx::Class::ResultSet instances.
+You just need to point to a dsn in your L<Dancer> configuration file.
+So you no longer have to write boilerplate DBIC setup code.
 
 =head1 CONFIGURATION
 

@@ -26,12 +26,13 @@ my  $schemas = {};
             PrintError: 1
     
     # Important Note! We have reversed our policy so that D::P::DBIC will not
-    # assume to automatically generate your DBIx-Class Classes, to enable DBIx-Class
-    # generation, please use the following configuration
+    # automatically load your DBIx-Class schemas via
+    # DBIx::Class::Schema::Loader. To enable auto loading, use the auto_load
+    # parameter:
     plugins:
       DBIC:
         foo:
-          generate: 1
+          auto_load: 1
     
     # Dancer Code File
     use Dancer;
@@ -113,7 +114,7 @@ foreach my $keyword (keys %{ $cfg }) {
         my @dsn = ();
         
         my $schema_class = $cfg->{$keyword}{schema_class}
-            || $cfg->{$keyword}{pckg}; # pckg is be deprecated
+            || $cfg->{$keyword}{pckg}; # pckg is deprecated
         $schema_class =~ s/\-/::/g;
 
         if ( $cfg->{$keyword}->{connect_info} ) {
@@ -127,10 +128,11 @@ foreach my $keyword (keys %{ $cfg }) {
               if $cfg->{$keyword}->{options};
         }
 
-        if ( $cfg->{$keyword}{generate} ) {
+        if ( $cfg->{$keyword}{auto_load}
+            || $cfg->{$keyword}{generate}) # generate is deprecated
+        {
             make_schema_at( $schema_class, {}, [@dsn], );
-        }
-        else {
+        } else {
             eval "use $schema_class";
             if ( my $err = $@ ) {
                 die "error while loading $schema_class : $err";

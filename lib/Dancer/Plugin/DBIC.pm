@@ -102,17 +102,9 @@ foreach my $keyword (keys %{ $cfg }) {
     register $keyword => sub {
         return $schemas->{$keyword} if $schemas->{$keyword};
         
-        my @dsn;
-        if ( $cfg->{$keyword}->{connect_info} ) {
-            push @dsn, @{ $cfg->{$keyword}->{connect_info} };
-        }
-        else {
-            push @dsn, $cfg->{$keyword}->{dsn}  if $cfg->{$keyword}->{dsn};
-            push @dsn, $cfg->{$keyword}->{user} if $cfg->{$keyword}->{user};
-            push @dsn, $cfg->{$keyword}->{pass} if $cfg->{$keyword}->{pass};
-            push @dsn, $cfg->{$keyword}->{options}
-              if $cfg->{$keyword}->{options};
-        }
+        my @dsn = $cfg->{$keyword}->{connect_info}
+            ? @{$cfg->{$keyword}{connect_info}}
+            : @{$cfg->{$keyword}}{qw(dsn user pass options)};
 
         my $schema_class = $cfg->{$keyword}{schema_class}
             || $cfg->{$keyword}{pckg}; # pckg should be deprecated

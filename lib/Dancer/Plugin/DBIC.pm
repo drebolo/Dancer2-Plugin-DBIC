@@ -17,20 +17,20 @@ my  $schemas = {};
     plugins:
       DBIC:
         foo:
+          dsn:  "dbi:SQLite:dbname=./foo.db"
+        bar:
           dsn:  "dbi:mysql:db_foo"
           user: "root"
           pass: "****"
           options:
             RaiseError: 1
             PrintError: 1
-        bar:
-          dsn:  "dbi:SQLite:dbname=./foo.db"
     
     # Dancer Code File
     use Dancer;
     use Dancer::Plugin::DBIC;
 
-    # Calling foo will return a L<DBIx::Class::Schema> instance using
+    # Calling foo or bar will return a DBIx::Class::Schema instance using
     # the database connection info from the configuration file.
     
     get '/profile/:id' => sub {

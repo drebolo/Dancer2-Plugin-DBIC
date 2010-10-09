@@ -4,7 +4,9 @@ use Dancer;
 use Dancer::Plugin::DBIC;
 
 get '/profile/:id' => sub {
-    my $user = foo->resultset('Users')->find(params->{id});
+    my $user = schema->resultset('Users')->find(params->{id});
+    # or explicitly ask for a schema by name:
+    $user = schema('foo')->resultset('Users')->find(params->{id});
     template user_profile => { user => $user };
 };
 

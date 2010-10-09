@@ -10,75 +10,65 @@ use DBIx::Class::Schema::Loader;
 
 =head1 SYNOPSIS
 
+    # Dancer Code File
+    use Dancer;
+    use Dancer::Plugin::DBIC;
+    #use Dancer::Plugin::DBIC qw(schema); # explicit import
+
+    get '/profile/:id' => sub {
+        my $user = schema->resultset('Users')->find(params->{id});
+        # or explicitly ask for a schema by name:
+        $user = schema('foo')->resultset('Users')->find(params->{id});
+        template user_profile => { user => $user };
+    };
+
+    dance;
+
     # Dancer Configuration File
     plugins:
       DBIC:
         foo:
           dsn:  "dbi:SQLite:dbname=./foo.db"
-        bar:
-          dsn:  "dbi:mysql:db_foo"
-          user: "root"
-          pass: "****"
-          options:
-            RaiseError: 1
-            PrintError: 1
-    
-    # Dancer Code File
-    use Dancer;
-    use Dancer::Plugin::DBIC;
-
-    # Calling foo or bar will return a DBIx::Class::Schema instance using
-    # the database connection info from the configuration file.
-    
-    get '/profile/:id' => sub {
-        my $user = foo->resultset('Users')->find(params->{id});
-        template user_profile => { user => $user };
-    };
-
-    dance;
 
 Database connection details are read from your Dancer application config - see
 below.
 
 =head1 DESCRIPTION
 
-Provides an easy way to obtain DBIx::Class::ResultSet instances.
+This plugin provides an easy way to obtain L<DBIx::Class::ResultSet> instances
+via the the function schema(), which it automatically imports.
 You just need to point to a dsn in your L<Dancer> configuration file.
 So you no longer have to write boilerplate DBIC setup code.
 
 =head1 CONFIGURATION
 
-Connection details will be taken from your Dancer application config file, and
-should be specified as stated above, for example: 
+Connection details will be grabbed from your L<Dancer> config file.
+For example: 
 
     plugins:
       DBIC:
         foo:
-          schema_class: "Foo::Bar"
-          dsn:  "dbi:mysql:db_foo"
-          user: "root"
-          pass: "****"
+          dsn: dbi:SQLite:dbname=./foo.db
+        bar:
+          schema_class: Foo::Bar
+          dsn:  dbi:mysql:db_foo
+          user: root
+          pass: secret
           options:
             RaiseError: 1
             PrintError: 1
-        bar:
-          dsn:  "dbi:SQLite:dbname=./foo.db"
 
-Make sure that the options immediately under DBIC
-(foo and bar in the above example)
-do not clash with existing L<Dancer> and Dancer::Plugin::*** reserved keywords. 
-
-Each database configuration *must* have a dsn option.
+Each schema configuration *must* have a dsn option.
 The dsn option should be the L<DBI> driver connection string.
+All other options are optional.
 
 If a schema_class option is not provided, then L<DBIx::Class::Schema::Loader>
-will be used to auto load the schema.
+will be used to auto load the schema based on the dsn value.
 
 The schema_class option, if provided, should be a proper Perl package name that
 Dancer::Plugin::DBIC will use as a DBIx::Class::Schema class.
 Optionally, a database configuation may have user, pass and options paramters
-which are appended to the dsn in list form,
-i.e. dbi:SQLite:dbname=./foo.db, $user, $pass, $options.
+as described in the documentation for connect() in L<DBI>.
 
     # Note! You can also declare your connection information with the
     # following syntax:
@@ -88,7 +78,7 @@ i.e. dbi:SQLite:dbname=./foo.db, $user, $pass, $options.
           connect_info:
             - dbi:mysql:db_foo
             - root
-            - ***
+            - secret
             -
               RaiseError: 1
               PrintError: 1

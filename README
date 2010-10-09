@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 use Dancer;
-use Dancer::Plugin::DBIC;
+use Dancer::Plugin::DBIC qw(schema);
 
 get '/profile/:id' => sub {
     my $user = schema->resultset('Users')->find(params->{id});

@@ -1,9 +1,8 @@
 use strict;
 use warnings;
-use Test::More tests => 4, import => ['!pass'];
+use Test::More tests => 3, import => ['!pass'];
 
 use Dancer;
-use Dancer::Test;
 use DBI;
 use DBIx::Class;
 use FindBin '$RealBin';
@@ -38,7 +37,7 @@ BEGIN {
 
     my @users = ( ['bob', 40] );
     for my $user (@users) {
-        $dbh->do(q{ insert into user values(?,?) }, {}, @$user[0,1]);
+        $dbh->do(q{ insert into user values(?,?) }, {}, @$user);
     }
 
 }
@@ -46,14 +45,8 @@ BEGIN {
 use lib "$RealBin/../lib";
 use Dancer::Plugin::DBIC;
 
-get '/foo' => sub {
-    my $user = schema('foo')->resultset('User')->find('bob');
-    ok $user, 'Found bob.';
-    is $user->age => '40', 'Bob is even older.';
-};
-
-response_exists [ get => '/foo' ], 'Route /foo ran';
+my $user = schema('foo')->resultset('User')->find('bob');
+ok $user, 'Found bob.';
+is $user->age => '40', 'Bob is even older.';
 
 unlink $dbfile;
-
-done_testing;

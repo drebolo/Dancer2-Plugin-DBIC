@@ -1,6 +1,7 @@
 use strict;
 use warnings;
-use Test::More tests => 6, import => ['!pass'];
+use Test::More tests => 3, import => ['!pass'];
+use Test::Exception;
 
 use Dancer;
 use DBI;
@@ -27,9 +28,6 @@ BEGIN {
             foo => {
                 dsn =>  "dbi:SQLite:dbname=$dbfile1",
             },
-            bar => {
-                dsn =>  "dbi:SQLite:dbname=$dbfile2",
-            },
         }
     };
 
@@ -41,33 +39,17 @@ BEGIN {
         create table user (name varchar(100) primary key, age int)
     }), 'Created sqlite test1 db.';
 
-    my @users = ( ['bob', 30] );
+    my @users = ( ['bob', 2] );
     for my $user (@users) {
-        $dbh1->do(q{ insert into user values(?,?) }, {}, @$user[0,1]);
+        $dbh1->do(q{ insert into user values(?,?) }, {}, @$user);
     }
-
-    my $dbh2 = DBI->connect("dbi:SQLite:dbname=$dbfile2");
-
-    ok $dbh2->do(q{
-        create table user (name varchar(100) primary key, age int)
-    }), 'Created sqlite test2 db.';
-
-    @users = ( ['sue', 20] );
-    for my $user (@users) {
-        $dbh2->do(q{ insert into user values(?,?) }, {}, @$user);
-    }
-
 }
 
 use lib "$RealBin/../lib";
 use Dancer::Plugin::DBIC;
 
-my $user = schema('foo')->resultset('User')->find('bob');
+my $user = schema->resultset('User')->find('bob');
 ok $user, 'Found bob.';
-is $user->age => '30', 'Bob is getting old.';
-
-$user = schema('bar')->resultset('User')->find('sue');
-ok $user, 'Found sue.';
-is $user->age => '20', 'Sue is the right age.';
+is $user->age => '2', 'Bob is a baby.';
 
 unlink $dbfile1, $dbfile2;

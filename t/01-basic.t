@@ -64,13 +64,13 @@ use lib "$RealBin/../lib";
 use Dancer::Plugin::DBIC;
 
 get '/bob' => sub {
-    my $user = foo->resultset('User')->find('bob');
+    my $user = schema('foo')->resultset('User')->find('bob');
     ok $user, 'Found bob.';
     is $user->age => '30', 'Bob is getting old.';
 };
 
 get '/sue' => sub {
-    my $user = bar->resultset('User')->find('sue');
+    my $user = schema('bar')->resultset('User')->find('sue');
     ok $user, 'Found sue.';
     is $user->age => '20', 'Sue is the right age.';
 };

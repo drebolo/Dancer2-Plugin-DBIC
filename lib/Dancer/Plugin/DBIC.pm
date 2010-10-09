@@ -98,31 +98,34 @@ i.e. dbi:SQLite:dbname=./foo.db, $user, $pass, $options.
 
 =cut
 
-foreach my $keyword (keys %{ $cfg }) {
-    register $keyword => sub {
-        return $schemas->{$keyword} if $schemas->{$keyword};
-        
-        my @dsn = $cfg->{$keyword}->{connect_info}
-            ? @{$cfg->{$keyword}{connect_info}}
-            : @{$cfg->{$keyword}}{qw(dsn user pass options)};
+#use Data::Dumper;
+register schema => sub {
+    my $name = shift;
 
-        my $schema_class = $cfg->{$keyword}{schema_class}
-            || $cfg->{$keyword}{pckg}; # pckg should be deprecated
+    return $schemas->{$name} if $schemas->{$name};
+    my $options = defined $name ? $cfg->{$name} : (each %$cfg)[1];
+    die "The schema $name is not configured" unless $options;
 
-        if ($schema_class) {
-            $schema_class =~ s/-/::/g;
-            eval "use $schema_class";
-            if ( my $err = $@ ) {
-                die "error while loading $schema_class : $err";
-            }
-            $schemas->{$keyword} = $schema_class->connect(@dsn)
-        } else {
-            $schemas->{$keyword} = DBIx::Class::Schema::Loader->connect(@dsn);
+    my @conn_info = $options->{connect_info}
+        ? @{$options->{connect_info}}
+        : @$options{qw(dsn user pass options)};
+
+    # pckg should be deprecated
+    my $schema_class = $options->{schema_class} || $options->{pckg};
+
+    if ($schema_class) {
+        $schema_class =~ s/-/::/g;
+        eval "use $schema_class";
+        if ( my $err = $@ ) {
+            die "error while loading $schema_class : $err";
         }
-        
-        return $schemas->{$keyword};
-    };
-}
+        $schemas->{$name} = $schema_class->connect(@conn_info)
+    } else {
+        $schemas->{$name} = DBIx::Class::Schema::Loader->connect(@conn_info);
+    }
+
+    return $schemas->{$name};
+};
 
 register_plugin;
 

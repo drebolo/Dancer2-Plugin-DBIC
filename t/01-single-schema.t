@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 3, import => ['!pass'];
+use Test::More tests => 4, import => ['!pass'];
 use Test::Exception;
 
 use Dancer;
@@ -51,5 +51,8 @@ use Dancer::Plugin::DBIC;
 my $user = schema->resultset('User')->find('bob');
 ok $user, 'Found bob.';
 is $user->age => '2', 'Bob is a baby.';
+
+throws_ok { schema('bar')->resultset('User')->find('bob') }
+    qr/schema bar is not configured/, 'Missing schema error thrown';
 
 unlink $dbfile1, $dbfile2;

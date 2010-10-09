@@ -8,9 +8,6 @@ use Dancer::Plugin;
 use DBIx::Class;
 use DBIx::Class::Schema::Loader;
 
-my  $cfg = plugin_setting;
-my  $schemas = {};
-
 =head1 SYNOPSIS
 
     # Dancer Configuration File
@@ -98,13 +95,19 @@ i.e. dbi:SQLite:dbname=./foo.db, $user, $pass, $options.
 
 =cut
 
-#use Data::Dumper;
+my $cfg = plugin_setting;
+my $schemas = {};
+
 register schema => sub {
     my $name = shift;
 
-    return $schemas->{$name} if $schemas->{$name};
-    my $options = defined $name ? $cfg->{$name} : (each %$cfg)[1];
-    die "The schema $name is not configured" unless $options;
+    if (defined $name) {
+        return $schemas->{$name} if $schemas->{$name};
+    } else {
+        ($name) = keys %$cfg or die "No schemas are configured";
+    }
+
+    my $options = $cfg->{$name} or die "The schema $name is not configured";
 
     my @conn_info = $options->{connect_info}
         ? @{$options->{connect_info}}

@@ -1,6 +1,7 @@
 use strict;
 use warnings;
-use Test::More tests => 6, import => ['!pass'];
+use Test::More tests => 7, import => ['!pass'];
+use Test::Exception;
 
 use Dancer;
 use DBI;
@@ -69,5 +70,8 @@ is $user->age => '30', 'Bob is getting old.';
 $user = schema('bar')->resultset('User')->find('sue');
 ok $user, 'Found sue.';
 is $user->age => '20', 'Sue is the right age.';
+
+throws_ok { schema('poo')->resultset('User')->find('bob') }
+    qr/schema poo is not configured/, 'Missing schema error thrown';
 
 unlink $dbfile1, $dbfile2;

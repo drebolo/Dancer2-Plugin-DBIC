@@ -13,7 +13,7 @@ use DBIx::Class::Schema::Loader;
     # Dancer Code File
     use Dancer;
     use Dancer::Plugin::DBIC;
-    #use Dancer::Plugin::DBIC qw(schema); # explicit import
+    #use Dancer::Plugin::DBIC qw(schema); # explicit import if you like
 
     get '/profile/:id' => sub {
         my $user = schema->resultset('Users')->find(params->{id});
@@ -91,11 +91,11 @@ my $schemas = {};
 register schema => sub {
     my $name = shift;
 
-    if (defined $name) {
-        return $schemas->{$name} if $schemas->{$name};
-    } else {
+    if (not defined $name) {
         ($name) = keys %$cfg or die "No schemas are configured";
     }
+
+    return $schemas->{$name} if $schemas->{$name};
 
     my $options = $cfg->{$name} or die "The schema $name is not configured";
 

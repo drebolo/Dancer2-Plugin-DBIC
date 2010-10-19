@@ -85,11 +85,14 @@ as described in the documentation for connect() in L<DBI>.
 
 =cut
 
-my $cfg = plugin_setting;
 my $schemas = {};
 
 register schema => sub {
     my $name = shift;
+
+    # we want to be sure the config is loaded
+    # before we cache it to $cfg (think at Dancer::Test ;)
+    my $cfg = plugin_setting;
 
     if (not defined $name) {
         ($name) = keys %$cfg or die "No schemas are configured";

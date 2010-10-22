@@ -3,61 +3,49 @@ use warnings;
 use Test::More tests => 7, import => ['!pass'];
 use Test::Exception;
 
-use Dancer;
+use Dancer ':syntax';
 use DBI;
-use DBIx::Class;
-use DBIx::Class::Schema::Loader;
-DBIx::Class::Schema::Loader->naming('v6');
 use FindBin '$RealBin';
 
-my $dbfile1;
-my $dbfile2;
+eval { require DBD::SQLite };
+if ($@) {
+    plan skip_all => 'DBD::SQLite required to run these tests';
+}
 
-BEGIN {
+my $dbfile1 = "$RealBin/test1.db";
+my $dbfile2 = "$RealBin/test2.db";
 
-    eval { require DBD::SQLite };
-    if ($@) {
-        plan skip_all => 'DBD::SQLite required to run these tests';
+set plugins => {
+    DBIC => {
+        foo => {
+            dsn =>  "dbi:SQLite:dbname=$dbfile1",
+        },
+        bar => {
+            dsn =>  "dbi:SQLite:dbname=$dbfile2",
+        },
     }
+};
 
-    $dbfile1 = "$RealBin/test1.db";
-    $dbfile2 = "$RealBin/test2.db";
+unlink $dbfile1, $dbfile2;
 
-    set plugins => {
-        DBIC => {
-            foo => {
-                dsn =>  "dbi:SQLite:dbname=$dbfile1",
-            },
-            bar => {
-                dsn =>  "dbi:SQLite:dbname=$dbfile2",
-            },
-        }
-    };
+my $dbh1 = DBI->connect("dbi:SQLite:dbname=$dbfile1");
 
-    unlink $dbfile1, $dbfile2;
+ok $dbh1->do(q{
+    create table user (name varchar(100) primary key, age int)
+}), 'Created sqlite test1 db.';
 
-    my $dbh1 = DBI->connect("dbi:SQLite:dbname=$dbfile1");
+my @users = ( ['bob', 30] );
+for my $user (@users) { $dbh1->do('insert into user values(?,?)', {}, @$user) }
 
-    ok $dbh1->do(q{
-        create table user (name varchar(100) primary key, age int)
-    }), 'Created sqlite test1 db.';
+my $dbh2 = DBI->connect("dbi:SQLite:dbname=$dbfile2");
 
-    my @users = ( ['bob', 30] );
-    for my $user (@users) {
-        $dbh1->do(q{ insert into user values(?,?) }, {}, @$user[0,1]);
-    }
+ok $dbh2->do(q{
+    create table user (name varchar(100) primary key, age int)
+}), 'Created sqlite test2 db.';
 
-    my $dbh2 = DBI->connect("dbi:SQLite:dbname=$dbfile2");
-
-    ok $dbh2->do(q{
-        create table user (name varchar(100) primary key, age int)
-    }), 'Created sqlite test2 db.';
-
-    @users = ( ['sue', 20] );
-    for my $user (@users) {
-        $dbh2->do(q{ insert into user values(?,?) }, {}, @$user);
-    }
-
+@users = ( ['sue', 20] );
+for my $user (@users) {
+    $dbh2->do(q{ insert into user values(?,?) }, {}, @$user);
 }
 
 use lib "$RealBin/../lib";

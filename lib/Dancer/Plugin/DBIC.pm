@@ -7,6 +7,7 @@ use warnings;
 use Dancer::Plugin;
 use DBIx::Class;
 use DBIx::Class::Schema::Loader;
+DBIx::Class::Schema::Loader->naming('v7');
 
 =head1 SYNOPSIS
 
@@ -89,9 +90,6 @@ my $schemas = {};
 
 register schema => sub {
     my $name = shift;
-
-    # we want to be sure the config is loaded
-    # before we cache it to $cfg (think at Dancer::Test ;)
     my $cfg = plugin_setting;
 
     if (not defined $name) {

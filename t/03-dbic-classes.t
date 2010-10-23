@@ -7,12 +7,16 @@ use DBI;
 use FindBin '$RealBin';
 use lib "$RealBin/lib";
 
+use File::Spec;
+use File::Temp qw/tempdir/;
+
 eval { require DBD::SQLite };
 if ($@) {
     plan skip_all => 'DBD::SQLite required to run these tests';
 }
 
-my $dbfile = "$RealBin/test3.db";
+my $dir = tempdir( CLEANUP => 1 );
+my $dbfile = File::Spec->catfile($dir, 'test3.db');
 
 set plugins => {
     DBIC => {

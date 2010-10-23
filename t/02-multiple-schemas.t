@@ -7,13 +7,18 @@ use Dancer ':syntax';
 use DBI;
 use FindBin '$RealBin';
 
+use File::Spec;
+use File::Temp qw/tempdir/;
+
 eval { require DBD::SQLite };
 if ($@) {
     plan skip_all => 'DBD::SQLite required to run these tests';
 }
 
-my $dbfile1 = "$RealBin/test1.db";
-my $dbfile2 = "$RealBin/test2.db";
+my $dir = tempdir(CLEANUP => 1);
+
+my $dbfile1 = File::Spec->catfile($dir, 'test1.db');
+my $dbfile2 = File::Spec->catfile($dir, 'test2.db');
 
 set plugins => {
     DBIC => {

@@ -4,6 +4,10 @@ use Test::More tests => 4, import => ['!pass'];
 use Test::Exception;
 
 use Dancer ':syntax';
+
+use File::Spec;
+use File::Temp qw/tempdir/;
+
 use DBI;
 use FindBin '$RealBin';
 
@@ -12,7 +16,8 @@ if ($@) {
     plan skip_all => 'DBD::SQLite required to run these tests';
 }
 
-my $dbfile = "$RealBin/test1.db";
+my $dir = tempdir( CLEANUP => 1 );
+my $dbfile = File::Spec->catfile( $dir, 'test.db' );
 
 set plugins => {
     DBIC => {
@@ -21,8 +26,6 @@ set plugins => {
         },
     }
 };
-
-unlink $dbfile;
 
 my $dbh1 = DBI->connect("dbi:SQLite:dbname=$dbfile");
 
@@ -42,5 +45,3 @@ is $user->age => '2', 'Bob is a baby.';
 
 throws_ok { schema('bar')->resultset('User')->find('bob') }
     qr/schema bar is not configured/, 'Missing schema error thrown';
-
-unlink $dbfile;

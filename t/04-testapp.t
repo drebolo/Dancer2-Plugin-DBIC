@@ -14,7 +14,7 @@ if ($@) {
     plan skip_all => 'DBD::SQLite required to run these tests';
 }
 
-my (undef, $dbfile) = tempfile(UNLINK => 1);
+my (undef, $dbfile) = tempfile(OPEN => 1);
 
 set plugins => { DBIC => { foo => { dsn => "dbi:SQLite:dbname=$dbfile", }, } };
 

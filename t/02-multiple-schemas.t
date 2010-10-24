@@ -13,8 +13,8 @@ if ($@) {
     plan skip_all => 'DBD::SQLite required to run these tests';
 }
 
-my (undef, $dbfile1) = tempfile(UNLINK => 1);
-my (undef, $dbfile2) = tempfile(UNLINK => 1);
+my (undef, $dbfile1) = tempfile(OPEN => 1);
+my (undef, $dbfile2) = tempfile(OPEN => 1);
 
 set plugins => {
     DBIC => {

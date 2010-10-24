@@ -13,8 +13,8 @@ if ($@) {
     plan skip_all => 'DBD::SQLite required to run these tests';
 }
 
-my (undef, $dbfile1) = tempfile(OPEN => 1);
-my (undef, $dbfile2) = tempfile(OPEN => 1);
+my (undef, $dbfile1) = tempfile(SUFFIX => '.db');
+my (undef, $dbfile2) = tempfile(SUFFIX => '.db');
 
 set plugins => {
     DBIC => {
@@ -56,3 +56,5 @@ is $user->age => '20', 'Sue is the right age.';
 
 throws_ok { schema('poo')->resultset('User')->find('bob') }
     qr/schema poo is not configured/, 'Missing schema error thrown';
+
+unlink $dbfile1, $dbfile2;

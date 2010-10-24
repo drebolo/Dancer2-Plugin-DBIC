@@ -14,7 +14,7 @@ if ($@) {
     plan skip_all => 'DBD::SQLite required to run these tests';
 }
 
-my (undef, $dbfile) = tempfile(OPEN => 1);
+my (undef, $dbfile) = tempfile(SUFFIX => '.db');
 
 set plugins => { DBIC => { foo => { dsn => "dbi:SQLite:dbname=$dbfile", }, } };
 
@@ -40,3 +40,5 @@ response_content_like [ GET => '/user/2' ], qr/bigpresh/,
 
 response_status_is [ DELETE => '/user/2' ], 200, 'DELETE /user/2 is ok';
 response_content_like [ GET => '/' ], qr/1/, 'content looks good for /';
+
+unlink $dbfile;

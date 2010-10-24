@@ -13,7 +13,7 @@ if ($@) {
     plan skip_all => 'DBD::SQLite required to run these tests';
 }
 
-my (undef, $dbfile) = tempfile(OPEN => 1);
+my (undef, $dbfile) = tempfile(SUFFIX => '.db');
 
 set plugins => {
     DBIC => {
@@ -37,3 +37,5 @@ is $user->age => '2', 'Bob is a baby.';
 
 throws_ok { schema('bar')->resultset('User')->find('bob') }
     qr/schema bar is not configured/, 'Missing schema error thrown';
+
+unlink $dbfile;

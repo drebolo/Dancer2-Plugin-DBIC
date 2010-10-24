@@ -46,4 +46,4 @@ is $user->age => '2', 'Bob is a baby.';
 throws_ok { schema('bar')->resultset('User')->find('bob') }
     qr/schema bar is not configured/, 'Missing schema error thrown';
 
-unlink $dbfile;
+# unlink $dbfile;

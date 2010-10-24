@@ -31,7 +31,7 @@ set plugins => {
     }
 };
 
-unlink $dbfile1, $dbfile2;
+# unlink $dbfile1, $dbfile2;
 
 my $dbh1 = DBI->connect("dbi:SQLite:dbname=$dbfile1");
 
@@ -67,4 +67,4 @@ is $user->age => '20', 'Sue is the right age.';
 throws_ok { schema('poo')->resultset('User')->find('bob') }
     qr/schema poo is not configured/, 'Missing schema error thrown';
 
-unlink $dbfile1, $dbfile2;
+# unlink $dbfile1, $dbfile2;

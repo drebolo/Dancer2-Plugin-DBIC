@@ -27,7 +27,7 @@ set plugins => {
     }
 };
 
-unlink $dbfile;
+# unlink $dbfile;
 my $dbh = DBI->connect("dbi:SQLite:dbname=$dbfile");
 
 ok $dbh->do(q{
@@ -44,4 +44,4 @@ my $user = schema('foo')->resultset('User')->find('bob');
 ok $user, 'Found bob.';
 is $user->age => '40', 'Bob is even older.';
 
-unlink $dbfile;
+# unlink $dbfile;

@@ -1,23 +1,20 @@
 use strict;
 use warnings;
+use Test::More tests => 7, import => ['!pass'];
 
-use Test::More import => ['!pass'];
-
-use t::lib::TestApp;
-use Dancer ':syntax';
+use Dancer qw(:syntax);
+use Dancer::Plugin::DBIC;
 use Dancer::Test;
-
 use DBI;
-use File::Spec;
-use File::Temp qw/tempdir/;
+use File::Temp qw(tempfile);
+use t::lib::TestApp;
 
 eval { require DBD::SQLite };
 if ($@) {
     plan skip_all => 'DBD::SQLite required to run these tests';
 }
 
-my $dir = tempdir( CLEANUP => 1 );
-my $dbfile = File::Spec->catfile( $dir, 'test.db' );
+my (undef, $dbfile) = tempfile(UNLINK => 1);
 
 set plugins => { DBIC => { foo => { dsn => "dbi:SQLite:dbname=$dbfile", }, } };
 
@@ -30,8 +27,6 @@ my @sql = (
 );
 
 $dbh->do($_) for @sql;
-
-plan tests => 7;
 
 response_status_is    [ GET => '/' ], 200,   "GET / is found";
 response_content_like [ GET => '/' ], qr/2/, "content looks good for /";

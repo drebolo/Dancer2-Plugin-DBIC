@@ -5,4 +5,5 @@ Dancer-Plugin-DBIC-*/*
 log/*
 logs/
 t/logs/*
+t/logs/
 dbic.kpf

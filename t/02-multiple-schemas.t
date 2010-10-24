@@ -7,7 +7,7 @@ use Dancer ':syntax';
 use DBI;
 use FindBin '$RealBin';
 
-use File::Spec;
+use File::Spec; #FYI, Dancer::path() uses File::Spec and cat
 use File::Temp qw/tempdir/;
 
 eval { require DBD::SQLite };

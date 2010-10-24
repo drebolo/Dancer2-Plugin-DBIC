@@ -84,6 +84,17 @@ as described in the documentation for connect() in L<DBI>.
               RaiseError: 1
               PrintError: 1
 
+=head1 SCHEMA GENERATION
+
+This plugin provides flexibility in defining schemas for use in your Dancer 
+applications. Schemas can be generated manually by you and defined in your 
+configuration file, or, they can be automatically and programmatically generated
+by this plugin whenever you call the `schema` keyword, or, because this plugin
+uses L<DBIx::Class::Schema::Loader> to do most of the heavy lifting, you can
+use the command-line utility dbicdump to generate physical DBIC schema class
+files in the current working directory. Note! The command-line utility is useful
+when loading schemas large enough to discourage auto-generation and manual creation.
+
 =cut
 
 my $schemas = {};

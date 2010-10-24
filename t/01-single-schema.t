@@ -5,7 +5,7 @@ use Test::Exception;
 
 use Dancer ':syntax';
 
-use File::Spec;
+use File::Spec; #FYI, Dancer::path() uses File::Spec and cat
 use File::Temp qw/tempdir/;
 
 use DBI;
@@ -45,3 +45,5 @@ is $user->age => '2', 'Bob is a baby.';
 
 throws_ok { schema('bar')->resultset('User')->find('bob') }
     qr/schema bar is not configured/, 'Missing schema error thrown';
+
+unlink $dbfile;

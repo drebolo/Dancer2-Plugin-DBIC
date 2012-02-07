@@ -88,12 +88,15 @@ as described in the documentation for connect() in L<DBI>.
 
 This plugin provides flexibility in defining schemas for use in your Dancer 
 applications. Schemas can be generated manually by you and defined in your 
-configuration file, or, they can be automatically and programmatically generated
-by this plugin whenever you call the `schema` keyword, or, because this plugin
-uses L<DBIx::Class::Schema::Loader> to do most of the heavy lifting, you can
-use the command-line utility dbicdump to generate physical DBIC schema class
-files in the current working directory. Note! The command-line utility is useful
-when loading schemas large enough to discourage auto-generation and manual creation.
+configuration file using the C<schema_class> setting as illustrated above, which
+is the recommended approach for performance and stability.
+
+It is also possible to have schema classes automatically generated via
+introspection (powered by L<DBIx::Class::Schema::Loader>) if you omit the
+C<schema_class> directive; this is not encouraged for production use, however.
+
+You can, of course, use the rLC<dbicdump> command-line utility provided by
+L<DBIx::Class::Schema::Loader> to ease the generation of your schema classes.
 
 =cut
 

@@ -72,9 +72,9 @@ Dancer::Plugin::DBIC will use as a DBIx::Class::Schema class.
 Optionally, a database configuation may have user, pass and options paramters
 as described in the documentation for connect() in L<DBI>.
 
-    # Note! You can also declare your connection information with the
+    # Note: You can also declare your connection information with the
     # following syntax:
-    plugings:
+    plugins:
       DBIC:
         foo:
           connect_info:

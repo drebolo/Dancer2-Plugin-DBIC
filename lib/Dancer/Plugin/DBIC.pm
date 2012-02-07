@@ -64,7 +64,8 @@ The dsn option should be the L<DBI> driver connection string.
 All other options are optional.
 
 If a schema_class option is not provided, then L<DBIx::Class::Schema::Loader>
-will be used to auto load the schema based on the dsn value.
+will be used to auto load the schema based on the dsn value - but see below for
+caveats.
 
 The schema_class option, if provided, should be a proper Perl package name that
 Dancer::Plugin::DBIC will use as a DBIx::Class::Schema class.
@@ -95,7 +96,7 @@ It is also possible to have schema classes automatically generated via
 introspection (powered by L<DBIx::Class::Schema::Loader>) if you omit the
 C<schema_class> directive; this is not encouraged for production use, however.
 
-You can, of course, use the rLC<dbicdump> command-line utility provided by
+You can, of course, use the L<dbicdump> command-line utility provided by
 L<DBIx::Class::Schema::Loader> to ease the generation of your schema classes.
 
 =cut

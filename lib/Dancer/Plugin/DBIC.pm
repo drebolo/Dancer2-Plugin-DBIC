@@ -14,7 +14,6 @@ DBIx::Class::Schema::Loader->naming('v7');
     # Dancer Code File
     use Dancer;
     use Dancer::Plugin::DBIC;
-    #use Dancer::Plugin::DBIC qw(schema); # explicit import if you like
 
     get '/profile/:id' => sub {
         my $user = schema->resultset('Users')->find(params->{id});
@@ -25,21 +24,37 @@ DBIx::Class::Schema::Loader->naming('v7');
 
     dance;
 
-    # Dancer Configuration File
+    # Dancer config file (config.yml) or environments/*.yml
+    plugins:
+      DBIC:
+        dsn:  "dbi:SQLite:dbname=./foo.db"
+        schema_class: "My::Schema"
+
+If you're using multiple database connections or schemas, you can also provide
+them with names, then pass the corresponding name to C<schema> to get the
+appropriate one:
+
     plugins:
       DBIC:
         foo:
-          dsn:  "dbi:SQLite:dbname=./foo.db"
+          dsn: "dbi:SQLite:dbname=foo.db"
+        bar:
+          dsn: "dbi:SQLite:dbname=bar.db"
 
-Database connection details are read from your Dancer application config - see
-below.
+See below for more detailed configuration examples.
+
 
 =head1 DESCRIPTION
 
 This plugin provides an easy way to obtain L<DBIx::Class::ResultSet> instances
-via the the function schema(), which it automatically imports.
-You just need to point to a dsn in your L<Dancer> configuration file.
-So you no longer have to write boilerplate DBIC setup code.
+via the provided C<schema> keyword, which it automatically exports.
+
+You just need to put your database connection details in your L<Dancer> 
+configuration file, generate schema classes by hand or using L<dbicdump> (or
+allow the plugin to automatically take care of that by using
+L<DBIx::Class::Schema::Loader> - but this isn't recommended for production use),
+and you're ready to go.
+
 
 =head1 CONFIGURATION
 

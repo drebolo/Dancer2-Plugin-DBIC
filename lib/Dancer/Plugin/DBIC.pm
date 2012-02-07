@@ -46,7 +46,7 @@ See below for more detailed configuration examples.
 
 =head1 DESCRIPTION
 
-This plugin provides an easy way to obtain L<DBIx::Class::ResultSet> instances
+This plugin provides an easy way to obtain L<DBIx::Class::Schema> instances
 via the provided C<schema> keyword, which it automatically exports.
 
 You just need to put your database connection details in your L<Dancer> 

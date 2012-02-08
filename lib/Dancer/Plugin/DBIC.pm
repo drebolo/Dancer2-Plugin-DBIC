@@ -2,6 +2,8 @@
 
 package Dancer::Plugin::DBIC;
 
+# VERSION
+
 use strict;
 use warnings;
 use Dancer::Plugin;

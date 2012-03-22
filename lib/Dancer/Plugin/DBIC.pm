@@ -64,7 +64,7 @@ The dsn option should be the L<DBI> driver connection string.
 All other options are optional.
 
 If you only have one schema configured, or one of them is called
-D<default>, you can call C<schema> without an argument to get the only
+C<default>, you can call C<schema> without an argument to get the only
 or C<default> schema, respectively.
 
 If a schema_class option is not provided, then L<DBIx::Class::Schema::Loader>

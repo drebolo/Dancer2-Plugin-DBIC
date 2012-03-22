@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 7, import => ['!pass'];
+use Test::More tests => 9, import => ['!pass'];
 use Test::Exception;
 
 use Dancer qw(:syntax);
@@ -56,5 +56,23 @@ is $user->age => '20', 'Sue is the right age.';
 
 throws_ok { schema('poo')->resultset('User')->find('bob') }
     qr/schema poo is not configured/, 'Missing schema error thrown';
+
+throws_ok { schema->resultset('User')->find('bob') }
+    qr/The schema default is not configured/, 'Missing default schema error thrown';
+
+set plugins => {
+    DBIC => {
+        default => {
+            dsn =>  "dbi:SQLite:dbname=$dbfile1",
+        },
+        bar => {
+            dsn =>  "dbi:SQLite:dbname=$dbfile2",
+        },
+    }
+};
+
+lives_and {
+    ok schema->resultset('User')->find('bob'), 'Found bob.'
+} 'Default schema';
 
 unlink $dbfile1, $dbfile2;

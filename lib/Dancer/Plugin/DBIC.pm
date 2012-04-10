@@ -65,6 +65,10 @@ Each database configured must have a dsn option.
 The dsn option should be the L<DBI> driver connection string.
 All other options are optional.
 
+If you only have one schema configured, or one of them is called
+C<default>, you can call C<schema> without an argument to get the only
+or C<default> schema, respectively.
+
 If a schema_class option is not provided, then L<DBIx::Class::Schema::Loader>
 will be used to dynamically load the schema based on the dsn value.
 This is for convenience only and should not be used in production.
@@ -126,7 +130,13 @@ register schema => sub {
     my $cfg = plugin_setting;
 
     if (not defined $name) {
-        ($name) = keys %$cfg or die "No schemas are configured";
+        if (keys %$cfg == 1) {
+            ($name) = keys %$cfg;
+        } elsif (keys %$cfg) {
+            $name = "default";
+        } else {
+            die "No schemas are configured";
+        }
     }
 
     return $schemas->{$name} if $schemas->{$name};

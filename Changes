@@ -1,5 +1,10 @@
 Revision history for Dancer-Plugin-DBIC
 
+0.1506  2012-04-12
+        When multiple databases are configured, calling schema with no args
+            returns the schema for the databased named 'default'.
+        Thanks to Dagfinn Ilmari Mannsåker (ilmari).
+
 0.1505  2012-02-07
         Updating POD to warn about dynamic loading of schema classes.
         Thanks to David Precious (bigpresh) and Matt S. Trout (mst).

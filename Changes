@@ -1,9 +1,14 @@
 Revision history for Dancer-Plugin-DBIC
 
+0.1600  2012-09-29
+        DBIx::Class::Schema::Loader is now an optional dependency.
+            Thanks to Fabrice Gabolde (fgabolde).
+        Started using Module::Load for dynamically loading modules.
+
 0.1506  2012-04-12
         When multiple databases are configured, calling schema with no args
             returns the schema for the databased named 'default'.
-        Thanks to Dagfinn Ilmari Mannsåker (ilmari).
+            Thanks to Dagfinn Ilmari Mannsåker (ilmari).
 
 0.1505  2012-02-07
         Updating POD to warn about dynamic loading of schema classes.

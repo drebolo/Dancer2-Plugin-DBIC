@@ -6,6 +6,7 @@ use strict;
 use warnings;
 use Dancer::Plugin;
 use DBIx::Class;
+use Module::Load;
 
 my $schemas = {};
 
@@ -31,22 +32,21 @@ register schema => sub {
         ? @{$options->{connect_info}}
         : @$options{qw(dsn user pass options)};
 
-    # pckg should be deprecated
+    warn "The pckg option is deprecated. Please use schema_class instead."
+        if $options->{pckg};
     my $schema_class = $options->{schema_class} || $options->{pckg};
 
     if ($schema_class) {
         $schema_class =~ s/-/::/g;
-        eval "use $schema_class";
-        if ( my $err = $@ ) {
-            die "error while loading $schema_class : $err";
-        }
+        eval { load $schema_class };
+        die "Could not load schema_class $schema_class" if $@;
         $schemas->{$name} = $schema_class->connect(@conn_info)
     } else {
-        eval { require DBIx::Class::Schema::Loader };
-        if ( my $err = $@ ) {
-            die "error while building schema class on the fly: DBIx::Class::Schema::Loader not available: $err"
-        };
-        DBIx::Class::Schema::Loader->naming('v7');
+        my $dbic_loader = 'DBIx::Class::Schema::Loader';
+        eval { load $dbic_loader };
+        die "You must provide a schema_class option or install $dbic_loader."
+            if $@;
+        $dbic_loader->naming('v7');
         $schemas->{$name} = DBIx::Class::Schema::Loader->connect(@conn_info);
     }
 

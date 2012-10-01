@@ -1,5 +1,9 @@
 Revision history for Dancer-Plugin-DBIC
 
+0.1601  2012-10-01
+        Added logic to skip some tests when DBIx::Class::Schema::Loader is not
+            installed.
+
 0.1600  2012-09-29
         DBIx::Class::Schema::Loader is now an optional dependency.
             Thanks to Fabrice Gabolde (fgabolde).

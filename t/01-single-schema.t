@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use lib 't/lib';
 use Test::More tests => 4, import => ['!pass'];
 use Test::Exception;
 
@@ -9,15 +10,14 @@ use DBI;
 use File::Temp qw(tempfile);
 
 eval { require DBD::SQLite };
-if ($@) {
-    plan skip_all => 'DBD::SQLite required to run these tests';
-}
+plan skip_all => 'DBD::SQLite required to run these tests' if $@;
 
 my (undef, $dbfile) = tempfile(SUFFIX => '.db');
 
 set plugins => {
     DBIC => {
         foo => {
+            schema_class => 'Foo',
             dsn =>  "dbi:SQLite:dbname=$dbfile",
         },
     }

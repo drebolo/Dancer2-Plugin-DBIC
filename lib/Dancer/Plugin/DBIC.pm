@@ -4,6 +4,7 @@ package Dancer::Plugin::DBIC;
 
 use strict;
 use warnings;
+use utf8;
 use Dancer::Plugin;
 use DBIx::Class;
 use Module::Load;
@@ -11,7 +12,7 @@ use Module::Load;
 my $schemas = {};
 
 register schema => sub {
-    my ($dsl, $name) = plugin_args(@_);
+    my ($self, $name) = plugin_args(@_);
     my $cfg = plugin_setting;
 
     if (not defined $name) {
@@ -97,9 +98,9 @@ In this example, there are 2 databases configured named C<default> and C<foo>:
       DBIC:
         default:
           dsn: dbi:SQLite:dbname=some.db
-          schema_class: My::Schema
+          schema_class: MyApp::Schema
         foo:
-          dsn:  dbi:mysql:foo
+          dsn: dbi:mysql:foo
           schema_class: Foo::Schema
           user: bob
           pass: secret
@@ -107,7 +108,7 @@ In this example, there are 2 databases configured named C<default> and C<foo>:
             RaiseError: 1
             PrintError: 1
 
-Each database configured must have a dsn option.
+Each database configured must at least have a dsn option.
 The dsn option should be the L<DBI> driver connection string.
 All other options are optional.
 
@@ -116,9 +117,10 @@ C<default>, you can call C<schema> without an argument to get the only
 or C<default> schema, respectively.
 
 If a schema_class option is not provided, then L<DBIx::Class::Schema::Loader>
-will be used to dynamically load the schema based on the dsn value.
-This is for convenience only and should not be used in production.
-See L</"SCHEMA GENERATION"> below for caveats.
+will be used to dynamically load the schema by introspecting the database
+corresponding to the dsn value.
+Remember that you need L<DBIx::Class::Schema::Loader> installed to take
+advantage of that.
 
 The schema_class option, should be a proper Perl package name that
 Dancer::Plugin::DBIC will use as a L<DBIx::Class::Schema> class.
@@ -158,14 +160,13 @@ Otherwise, you B<must> provide C<schema()> with the name of the database:
 =head1 SCHEMA GENERATION
 
 There are two approaches for generating schema classes.
-You may generate your own L<DBIx::Class> classes by hand and set
+You may generate your own L<DBIx::Class> classes and set
 the corresponding C<schema_class> setting in your configuration as shown above.
 This is the recommended approach for performance and stability.
 
-It is also possible to have schema classes automatically generated via
-introspection (powered by L<DBIx::Class::Schema::Loader>) if you omit the
-C<schema_class> configuration setting.
-However, this is highly discouraged for production environments.
+It is also possible to have schema classes dynamically generated
+if you omit the C<schema_class> configuration setting.
+This requires you to have L<DBIx::Class::Schema::Loader> installed.
 The C<v7> naming scheme will be used for naming the auto generated classes.
 See L<DBIx::Class::Schema::Loader::Base/naming> for more information about
 naming.
@@ -179,6 +180,32 @@ from the root of your project directory:
     dbicdump -o dump_directory=./lib Foo::Schema dbi:SQLite:/path/to/foo.db
 
 For that example, your C<schema_class> setting would be C<Foo::Schema>.
+
+=head1 CONTRIBUTORS
+
+=over 4
+
+=item *
+
+Alexis Sukrieh <sukria@sukria.net>
+
+=item *
+
+Dagfinn Ilmari Mannsåker <ilmari@ilmari.org>
+
+=item *
+
+Franck Cuny <franck@lumberjaph.net>
+
+=item *
+
+David Precious <davidp@preshweb.co.uk>
+
+=item *
+
+Steven Humphrey
+
+=back
 
 =cut
 

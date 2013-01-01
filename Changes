@@ -1,5 +1,9 @@
 Revision history for Dancer-Plugin-DBIC
 
+0.1700  2013-01-01
+        Added support for Dancer 2.
+        Thanks Steven Humphrey (https://github.com/shumphrey)!
+
 0.1601  2012-10-01
         Added logic to skip some tests when DBIx::Class::Schema::Loader is not
             installed.

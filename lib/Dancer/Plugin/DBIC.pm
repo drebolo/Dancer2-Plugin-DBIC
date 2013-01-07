@@ -54,9 +54,11 @@ register schema => sub {
     return $schemas->{$name};
 };
 
-register_plugin for_versions => [1,2];
+register_plugin for_versions => [1, 2];
 
 # ABSTRACT: DBIx::Class interface for Dancer applications
+
+=encoding utf8
 
 =head1 SYNOPSIS
 

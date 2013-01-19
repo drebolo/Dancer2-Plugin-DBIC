@@ -6,12 +6,11 @@ use strict;
 use warnings;
 use utf8;
 use Dancer::Plugin;
-use DBIx::Class;
 use Module::Load;
 
 my $schemas = {};
 
-register schema => sub {
+sub schema {
     my ($self, $name) = plugin_args(@_);
     my $cfg = plugin_setting;
 
@@ -54,7 +53,15 @@ register schema => sub {
     return $schemas->{$name};
 };
 
-register_plugin for_versions => [1, 2];
+sub resultset {
+    my ($self, $rset_name) = plugin_args(@_);
+    return schema->resultset($rset_name);
+}
+
+register schema    => \&schema;
+register resultset => \&resultset;
+register rset      => \&resultset;
+register_plugin for_versions => [ 1, 2 ];
 
 # ABSTRACT: DBIx::Class interface for Dancer applications
 
@@ -63,10 +70,17 @@ register_plugin for_versions => [1, 2];
 =head1 SYNOPSIS
 
     use Dancer;
-    use Dancer::Plugin::DBIC 'schema';
+    use Dancer::Plugin::DBIC qw(schema resultset rset);
 
-    get '/users/:id' => sub {
-        my $user = schema->resultset('User')->find(param 'id');
+    get '/users/:user_id' => sub {
+        my $user = schema('default')->resultset('User')->find(param 'user_id');
+
+        # If you are accessing the 'default' schema, then all the following
+        # are equivalent to the above:
+        $user = schema->resultset('User')->find(param 'user_id');
+        $user = resultset('User')->find(param 'user_id');
+        $user = rset('User')->find(param 'user_id');
+
         template user_profile => {
             user => $user
         };
@@ -143,21 +157,40 @@ You may also declare your connection information in the following format
               RaiseError: 1
               PrintError: 1
 
-=head1 USAGE
+=head1 FUNCTIONS
 
-This plugin provides just the keyword C<schema> which
-returns a L<DBIx::Class::Schema> object ready for you to use.
-If you have configured only one database, then you can call C<schema> with
-no arguments:
+=head2 schema
 
     my $user = schema->resultset('User')->find('bob');
 
+The C<schema> keyword returns a L<DBIx::Class::Schema> object ready for you to
+use.
+If you have configured only one database, then you can simply call C<schema>
+with no arguments.
 If you have configured multiple databases,
 you can still call C<schema> with no arguments if there is a database
 named C<default> in the configuration.
+With no argument, the C<default> schema is returned.
 Otherwise, you B<must> provide C<schema()> with the name of the database:
 
     my $user = schema('foo')->resultset('User')->find('bob');
+
+=head2 resultset
+
+This is a convenience method that will save you some typing.
+Use this B<only> when accessing the C<default> schema.
+
+    my $user = resultset('User')->find('bob');
+
+is equivalent to:
+
+    my $user = schema->resultset('User')->find('bob');
+
+=head2 rset
+
+    my $user = rset('User')->find('bob');
+
+This is simply an alias for C<resultset>.
 
 =head1 SCHEMA GENERATION
 

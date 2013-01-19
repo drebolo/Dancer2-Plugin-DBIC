@@ -31,11 +31,23 @@ ok $dbh->do(q{
 my @users = ( ['bob', 2] );
 for my $user (@users) { $dbh->do('insert into user values(?,?)', {}, @$user) }
 
-my $user = schema->resultset('User')->find('bob');
-ok $user, 'Found bob.';
-is $user->age => '2', 'Bob is a baby.';
+subtest 'schema' => sub {
+    my $user = schema->resultset('User')->find('bob');
+    is $user->age => '2', 'Bob is a baby.';
+    $user = schema('foo')->resultset('User')->find('bob');
+    is $user->age => '2', 'Found Bob via explicit schema name.';
+};
 
-throws_ok { schema('bar')->resultset('User')->find('bob') }
-    qr/schema bar is not configured/, 'Missing schema error thrown';
+subtest 'resultset' => sub {
+    my $user = resultset('User')->find('bob');
+    is $user->age => '2', 'Found Bob via resultset.';
+    $user = rset('User')->find('bob');
+    is $user->age => '2', 'Found Bob via rset.';
+};
+
+subtest 'invalid schema name' => sub {
+    throws_ok { schema('bar')->resultset('User')->find('bob') }
+        qr/schema bar is not configured/, 'Missing schema error thrown';
+};
 
 unlink $dbfile;

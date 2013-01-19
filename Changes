@@ -1,5 +1,8 @@
 Revision history for Dancer-Plugin-DBIC
 
+0.1800  2013-01-18
+        Added the resultset and rset keywords.
+
 0.1700  2013-01-01
         Added support for Dancer 2.
         Thanks Steven Humphrey (https://github.com/shumphrey)!
